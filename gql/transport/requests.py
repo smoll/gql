@@ -20,7 +20,7 @@ class RequestsHTTPTransport(HTTPTransport):
         self.default_timeout = timeout
         self.use_json = use_json
 
-    def execute(self, document, variable_values=None, timeout=None):
+    def execute(self, document, variable_values=None, timeout=None, raise_for_status=True):
         query_str = print_ast(document)
         payload = {
             'query': query_str,
@@ -36,7 +36,8 @@ class RequestsHTTPTransport(HTTPTransport):
             data_key: payload
         }
         request = requests.post(self.url, **post_args)
-        request.raise_for_status()
+        if raise_for_status:
+            request.raise_for_status()
 
         result = request.json()
         assert 'errors' in result or 'data' in result, 'Received non-compatible response "{}"'.format(result)
